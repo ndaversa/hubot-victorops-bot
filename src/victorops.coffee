@@ -15,7 +15,8 @@
 # HUBOT_VICTOROPS_TEAMS_ICAL `\{\"devops\":\"URL_TO_ICS\",\"data\":\"URL_TO_ICS\"\}`
 #
 # Commands:
-#   hubot page oncall
+#   hubot page oncall <optional message>
+#   hubot whois oncall
 #
 # Author:
 #   ndaversa
@@ -55,11 +56,7 @@ module.exports = (robot) ->
     else
       return "<@#{name}>"
 
-  robot.respond /page oncall/, (msg) ->
-    room = msg.message.room
-    team = teams[room]
-    return msg.reply "#You can only page for oncall in one of the following project channels:" + (" <\##{channel}>" for channel, team of teams) if not team
-
+  whoIsOncall = (team, cb) ->
     now = moment()
     calendar = calendars[team]
     ical.fromURL calendar, {}, (err, data) ->
@@ -79,15 +76,22 @@ module.exports = (robot) ->
           oncall = events[0]
 
       if oncall
-        [ __, person] = oncall.summary.match /(?:OVERRIDE:\s)?(.*)/
+        [ __, person ] = oncall.summary.match /(?:OVERRIDE:\s)?(.*)/
+      cb person
 
+  robot.respond /page oncall(?:\s+(.*))?/, (msg) ->
+    [ __, message ] = msg.match
+    room = msg.message.room
+    team = teams[room]
+    return msg.reply "You can only page for oncall in one of the following project channels:" + (" <\##{channel}>" for channel, team of teams) if not team
+
+    whoIsOncall team, (person) ->
+      if person
         fetch "#{url}#{team}",
-          headers:
-            "Content-Type": "application/json"
           method: "POST"
           body: JSON.stringify
            message_type: "critical"
-           state_message: "You have been paged by @#{msg.message.user.name} in ##{room}"
+           state_message: "You have been paged by @#{msg.message.user.name} in ##{room}: #{message}"
         .then (res) ->
           checkStatus res
         .then (res) ->
@@ -96,6 +100,17 @@ module.exports = (robot) ->
           msg.reply "Paged #{lookupUser person} whom is on call for the `#{team}` team in victorops"
         .catch (error) ->
           console.log "*[Error]* #{error}"
-          msg.reply "I have failed at paging #{lookupUser person}. I feel shame"
+          msg.reply "I have failed at paging #{lookupUser person}. I am shamed"
+      else
+        msg.reply "I can't determine who is on call, please contact your friendly administrator"
+
+  robot.respond /whois oncall/, (msg) ->
+    room = msg.message.room
+    team = teams[room]
+    return msg.reply "You can only see who is oncall in the following project channels:" + (" <\##{channel}>" for channel, team of teams) if not team
+
+    whoIsOncall team, (person) ->
+      if person
+        msg.reply "#{lookupUser person} is on duty for the `#{team}` team"
       else
         msg.reply "I can't determine who is on call, please contact your friendly administrator"

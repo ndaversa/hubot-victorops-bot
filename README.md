@@ -15,4 +15,5 @@ Quickly page the person on call in victorops
 `HUBOT_VICTOROPS_TEAMS_ICAL` `\{\"devops\":\"URL_TO_ICS\",\"data\":\"URL_TO_ICS\"\}`
 
 ###Commands
-`hubot page oncall`
+`hubot page oncall <optional message>`
+`hubot whois oncall`
