@@ -15,8 +15,8 @@ A hubot script to quickly view or page the person on call in victorops
 - `HUBOT_VICTOROPS_TEAMS_ICAL` `\{\"devops\":\"URL_TO_ICS\",\"data\":\"URL_TO_ICS\"\}`
 
 ###Commands
-`hubot page oncall <optional message>`
-`hubot whois oncall`
+- `hubot page oncall <optional message>`
+- `hubot whois oncall`
 
 ###Setup Victorops
 http://victorops.force.com/knowledgebase/articles/Integration/Alert-Ingestion-API-Documentation/
