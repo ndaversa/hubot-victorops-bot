@@ -1,5 +1,5 @@
 # Hubot Victorops Bot
-Quickly page the person on call in victorops
+A hubot script to quickly view or page the person on call in victorops
 
 ###Dependencies
 - coffee-script
@@ -17,3 +17,6 @@ Quickly page the person on call in victorops
 ###Commands
 `hubot page oncall <optional message>`
 `hubot whois oncall`
+
+###Setup Victorops
+http://victorops.force.com/knowledgebase/articles/Integration/Alert-Ingestion-API-Documentation/

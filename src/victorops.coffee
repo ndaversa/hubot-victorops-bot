@@ -1,5 +1,5 @@
 # Description:
-# Quickly page the person on call in victorops
+# Quickly view or page the person on call in victorops
 #
 # Dependencies:
 # - coffee-script
@@ -90,8 +90,10 @@ module.exports = (robot) ->
         fetch "#{url}#{team}",
           method: "POST"
           body: JSON.stringify
+           entity_id: "slack-ops"
            message_type: "critical"
-           state_message: "You have been paged by @#{msg.message.user.name} in ##{room}: #{message}"
+           entity_display_name: "Paged by @#{msg.message.user.name} in ##{room}"
+           state_message: message
         .then (res) ->
           checkStatus res
         .then (res) ->
