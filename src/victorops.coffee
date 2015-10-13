@@ -51,7 +51,7 @@ module.exports = (robot) ->
       name: user.real_name || user.name
 
     results = fuzzy.filter name, users, extract: (user) -> user.name
-    if results?.length is 1
+    if results?.length >= 1
       return "<@#{results[0].original.id}>"
     else
       return "<@#{name}>"
