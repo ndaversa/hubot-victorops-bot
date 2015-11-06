@@ -44,6 +44,7 @@ module.exports = (robot) ->
       throw error
 
   lookupUser = (name) ->
+    name = name.replace '.', ' ' if name?
     users = robot.brain.users()
     users = _(users).keys().map (id) ->
       user = users[id]
@@ -54,7 +55,7 @@ module.exports = (robot) ->
     if results?.length >= 1
       return "<@#{results[0].original.id}>"
     else
-      return "<@#{name}>"
+      return name
 
   whoIsOncall = (team, cb) ->
     now = moment()
