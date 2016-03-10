@@ -43,6 +43,13 @@ module.exports = (robot) ->
       error.response = response
       throw error
 
+  invalidChannel = (msg) ->
+    channels = []
+    for team, key of teams
+      channel = robot.adapter.client.getChannelGroupOrDMByName team
+      channels.push " <\##{channel.id}|#{channel.name}>" if channel
+    return msg.reply "You can only page for oncall in one of the following project channels: #{channels}"
+
   lookupUser = (name) ->
     name = name.replace '.', ' ' if name?
     users = robot.brain.users()
@@ -84,7 +91,7 @@ module.exports = (robot) ->
     [ __, message ] = msg.match
     room = msg.message.room
     team = teams[room]
-    return msg.reply "You can only page for oncall in one of the following project channels:" + (" <\##{channel}>" for channel, team of teams) if not team
+    return invalidChannel msg unless team
 
     whoIsOncall team, (person) ->
       if person
@@ -110,7 +117,7 @@ module.exports = (robot) ->
   robot.respond /whois oncall/, (msg) ->
     room = msg.message.room
     team = teams[room]
-    return msg.reply "You can only see who is oncall in the following project channels:" + (" <\##{channel}>" for channel, team of teams) if not team
+    return invalidChannel msg unless team
 
     whoIsOncall team, (person) ->
       if person
