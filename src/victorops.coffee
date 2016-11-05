@@ -28,9 +28,15 @@ ical = require 'ical'
 fuzzy = require 'fuzzy'
 
 module.exports = (robot) ->
+  users = robot.brain.users() or @robot.adapter.client.rtm.dataStore.users
   url = process.env.HUBOT_VICTOROPS_POST_URL
   teams = JSON.parse process.env.HUBOT_VICTOROPS_TEAMS_MAP
   calendars = JSON.parse process.env.HUBOT_VICTOROPS_TEAMS_ICAL
+
+  getRoom = (context) ->
+    room = robot.adapter.client.rtm.dataStore.getChannelOrGroupByName context.message.room
+    room = robot.adapter.client.rtm.dataStore.getChannelGroupOrDMById context.message.room unless room
+    room
 
   parseJSON = (response) ->
     return response.json()
@@ -52,7 +58,6 @@ module.exports = (robot) ->
 
   lookupUser = (name) ->
     name = name.replace '.', ' ' if name?
-    users = robot.brain.users()
     users = _(users).keys().map (id) ->
       user = users[id]
       id: id
@@ -87,10 +92,10 @@ module.exports = (robot) ->
         [ __, person ] = oncall.summary.match /(?:OVERRIDE:\s)?(.*)/
       cb person
 
-  robot.respond /page oncall(?:\s+(.*))?/, (msg) ->
+  robot.respond /page on\s?call(?:\s+(.*))?/, (msg) ->
     [ __, message ] = msg.match
-    room = msg.message.room
-    team = teams[room]
+    room = getRoom msg
+    team = teams[room.name]
     return invalidChannel msg unless team
 
     whoIsOncall team, (person) ->
@@ -100,7 +105,7 @@ module.exports = (robot) ->
           body: JSON.stringify
            entity_id: "slack-ops"
            message_type: "critical"
-           entity_display_name: "Paged by @#{msg.message.user.name} in ##{room}"
+           entity_display_name: "Paged by @#{msg.message.user.name} in ##{room.name}"
            state_message: message
         .then (res) ->
           checkStatus res
@@ -114,9 +119,9 @@ module.exports = (robot) ->
       else
         msg.reply "I can't determine who is on call, please contact your friendly administrator"
 
-  robot.respond /whois oncall/, (msg) ->
-    room = msg.message.room
-    team = teams[room]
+  robot.respond /who\s?is on\s?call/, (msg) ->
+    room = getRoom msg
+    team = teams[room.name]
     return invalidChannel msg unless team
 
     whoIsOncall team, (person) ->
