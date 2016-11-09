@@ -52,7 +52,7 @@ module.exports = (robot) ->
   invalidChannel = (msg) ->
     channels = []
     for team, key of teams
-      channel = robot.adapter.client.getChannelGroupOrDMByName team
+      channel = getRoom message: room: team
       channels.push " <\##{channel.id}|#{channel.name}>" if channel
     return msg.reply "You can only page for oncall in one of the following project channels: #{channels}"
 
