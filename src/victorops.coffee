@@ -28,7 +28,7 @@ ical = require 'ical'
 fuzzy = require 'fuzzy'
 
 module.exports = (robot) ->
-  users = robot.brain.users() or @robot.adapter.client.rtm.dataStore.users
+  users = robot.adapter?.client?.rtm?.dataStore?.users or robot.brain.users()
   url = process.env.HUBOT_VICTOROPS_POST_URL
   teams = JSON.parse process.env.HUBOT_VICTOROPS_TEAMS_MAP
   calendars = JSON.parse process.env.HUBOT_VICTOROPS_TEAMS_ICAL
